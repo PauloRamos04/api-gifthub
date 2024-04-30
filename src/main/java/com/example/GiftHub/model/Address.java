@@ -26,11 +26,11 @@ public class Address {
     private String city;
 
     @Column(name = "estado")
-    private String State;
+    private String state;
 
     @Column(name = "cep")
     private String cep;
 
-    @Column(name = "estado")
+    @Column(name = "pais")
     private String country;
 }

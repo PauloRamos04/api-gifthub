@@ -27,8 +27,8 @@ public class Product {
     @Column(name = "estoque")
     private int stock;
 
-    @ManyToOne
     @Enumerated(EnumType.STRING)
+    @Column(name = "categoria")
     private Category category;
 }
 
