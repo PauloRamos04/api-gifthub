@@ -7,10 +7,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: gifthub
-      MYSQL_USER: gifthub_user
-      MYSQL_PASSWORD: gifthub_password
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: root
+      MYSQL_SSL_MODE: DISABLED
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
