@@ -1,18 +1,17 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:latest
+  postgres:
+    image: postgres:latest
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: gifthub
-      MYSQL_USER: gifthub_user
-      MYSQL_PASSWORD: gifthub_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: gifthub
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  mysql_data:
+  postgres_data:
