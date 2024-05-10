@@ -1,4 +1,4 @@
-package com.example.GiftHub.model;
+package com.example.GiftHub.domain.order;
 
 public enum OrderStatus {
 

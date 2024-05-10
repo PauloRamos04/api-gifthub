@@ -1,7 +1,7 @@
 package com.example.GiftHub.repository;
 
 
-import com.example.GiftHub.model.Customer;
+import com.example.GiftHub.domain.customer.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

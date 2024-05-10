@@ -1,5 +1,6 @@
-package com.example.GiftHub.model;
+package com.example.GiftHub.domain.address;
 
+import com.example.GiftHub.domain.customer.Customer;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

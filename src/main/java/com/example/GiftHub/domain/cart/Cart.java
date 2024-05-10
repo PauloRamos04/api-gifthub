@@ -1,21 +1,21 @@
-package com.example.GiftHub.model;
+package com.example.GiftHub.domain.cart;
 
+import com.example.GiftHub.domain.customer.Customer;
+import com.example.GiftHub.domain.product.Product;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
 
 @Entity
-@Table(name = "pedido")
+@Table(name = "carrinho")
 @Getter
 @Setter
-public class Order {
+public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_pedido")
+    @Column(name = "id_carrinho")
     private Long id;
 
     @ManyToOne
@@ -26,13 +26,7 @@ public class Order {
     @JoinColumn(name = "id_produto", referencedColumnName = "id_produto")
     private Product product;
 
-    @Column(name = "dt_pedido")
-    private Date dateOfOrder;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status_pedido")
-    private OrderStatus orderStatus;
-
     @Column(name = "quantidade")
-    private Integer amount;
+    private int quantity;
+
 }
