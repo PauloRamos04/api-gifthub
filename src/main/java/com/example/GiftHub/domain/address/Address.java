@@ -1,7 +1,8 @@
 package com.example.GiftHub.domain.address;
 
-import com.example.GiftHub.domain.customer.Customer;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,25 +14,38 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_endereco")
-    private Long enderecoId;
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_cliente")
-    private Customer customerId;
-
+    @NotNull
     @Column(name = "rua")
-    private String road;
+    private String street;
 
+    @NotNull
     @Column(name = "cidade")
     private String city;
 
+    @NotNull
     @Column(name = "estado")
     private String state;
 
+    @NotNull
     @Column(name = "cep")
-    private String cep;
+    private String zipCode;
 
+    @NotNull
     @Column(name = "pais")
     private String country;
+
+    // Construtor padrão
+    public Address() {
+    }
+
+    // Construtor com parâmetros
+    public Address(String street, String city, String state, String zipCode, String country) {
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.zipCode = zipCode;
+        this.country = country;
+    }
 }
