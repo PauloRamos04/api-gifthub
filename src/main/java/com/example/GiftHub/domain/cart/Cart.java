@@ -1,9 +1,11 @@
 package com.example.GiftHub.domain.cart;
 
-import com.example.GiftHub.domain.customer.Customer;
+import com.example.GiftHub.domain.user.User;
 import com.example.GiftHub.domain.product.Product;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
@@ -11,6 +13,8 @@ import lombok.Setter;
 @Table(name = "carrinho")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cart {
 
     @Id
@@ -19,14 +23,20 @@ public class Cart {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "id_cliente", referencedColumnName = "id_cliente")
-    private Customer customer;
+    @JoinColumn(name = "id_cliente")
+    private User user;
 
     @ManyToOne
-    @JoinColumn(name = "id_produto", referencedColumnName = "id_produto")
+    @JoinColumn(name = "id_produto")
     private Product product;
 
     @Column(name = "quantidade")
-    private int quantity;
+    private Integer quantity;
+
+    public Cart(User user, Product product, Integer quantity) {
+        this.user = user;
+        this.product = product;
+        this.quantity = quantity;
+    }
 
 }
