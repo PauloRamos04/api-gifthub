@@ -8,9 +8,12 @@ import com.example.GiftHub.repository.CartRepository;
 import com.example.GiftHub.repository.ProductRepository;
 import com.example.GiftHub.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,21 +29,24 @@ public class CartService {
     @Autowired
     private ProductRepository productRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(CartService.class);
 
-    public List<CartDTO> getCartByUserId(Long id) throws Exception {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new Exception("Cliente não encontrado com ID: " + id));
+
+    public List<CartDTO> getCartByUserId(Long userId) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("Cliente não encontrado com ID: " + userId));
 
         List<CartDTO> cartDTOs = new ArrayList<>();
         for (Cart cart : user.getCarts()) {
             CartDTO cartDTO = new CartDTO();
-            cartDTO.setUserName(user.getFullName());
-            cartDTO.setProductName(cart.getProduct().getName());
+            cartDTO.setUserId(user.getUserId());
+            cartDTO.setProductId(cart.getProduct().getProductId());
             cartDTO.setQuantity(cart.getQuantity());
             cartDTOs.add(cartDTO);
         }
         return cartDTOs;
     }
+
 
     @Transactional
     public CartDTO addProductToCart(Long userId, Long productId, int quantity) throws Exception {
@@ -58,8 +64,8 @@ public class CartService {
         cartRepository.save(cart);
 
         CartDTO cartDTO = new CartDTO();
-        cartDTO.setUserName(user.getFullName());
-        cartDTO.setProductName(product.getName());
+        cartDTO.setUserId(user.getUserId());
+        cartDTO.setProductId(product.getProductId());
         cartDTO.setQuantity(cart.getQuantity());
 
         return cartDTO;
@@ -80,8 +86,8 @@ public class CartService {
         cartRepository.save(cart);
 
         CartDTO cartDTO = new CartDTO();
-        cartDTO.setUserName(cart.getUser().getFullName());
-        cartDTO.setProductName(cart.getProduct().getName());
+        cartDTO.setUserId(cart.getUser().getUserId());
+        cartDTO.setProductId(cart.getProduct().getProductId());
         cartDTO.setQuantity(cart.getQuantity());
 
         return cartDTO;
@@ -100,6 +106,37 @@ public class CartService {
 
         cartRepository.delete(cart);
     }
+
+    public BigDecimal calculateTotalCartAmount(Long userId) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("Cliente não encontrado com ID: " + userId));
+
+        List<Cart> carts = user.getCarts();
+        BigDecimal total = BigDecimal.ZERO;
+
+        if (carts.isEmpty()) {
+            return total;
+        }
+
+        for (Cart cart : carts) {
+            BigDecimal productPrice = cart.getProduct().getPrice();
+            total = total.add(productPrice.multiply(BigDecimal.valueOf(cart.getQuantity())));
+        }
+
+        return total;
+    }
+
+
+    @Transactional
+    public void clearCart(Long userId) throws Exception {
+        logger.info("Chamando o método clearCart para o usuário com ID: {}", userId);
+
+        // Exclui os itens do carrinho com base no ID do usuário
+        int deletedItems = cartRepository.deleteByUserId(userId);
+        logger.info("Número de itens do carrinho excluídos para o usuário com ID {}: {}", userId, deletedItems);
+    }
+
+
+
+
 }
-
-

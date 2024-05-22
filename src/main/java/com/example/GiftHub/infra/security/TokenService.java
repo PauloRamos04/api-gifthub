@@ -5,8 +5,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.GiftHub.domain.user.User;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +27,25 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
+    @Autowired
+    private HttpServletRequest request;
+
     public String generateToken(User user) {
-        try{
-            logger.info("Iniciando geração de token para o usuário: {}", user.getUsername());
+        HttpSession session = request.getSession();
+        String existingToken = (String) session.getAttribute("token");
+        if (existingToken != null) {
+            return existingToken;
+        }
+        try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             String token = JWT.create()
                     .withIssuer("auth-api")
                     .withSubject(user.getLogin())
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
+            session.setAttribute("token", token);
             return token;
-        }catch (JWTCreationException ex){
+        } catch (JWTCreationException ex) {
             throw new RuntimeException("Error while generating token", ex);
         }
     }
