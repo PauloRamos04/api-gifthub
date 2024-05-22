@@ -1,13 +1,19 @@
 package com.example.GiftHub.controller;
 
-import com.example.GiftHub.domain.cart.Cart;
 import com.example.GiftHub.domain.cart.CartDTO;
+import com.example.GiftHub.domain.payment.PaymentTransaction;
+import com.example.GiftHub.domain.user.User;
 import com.example.GiftHub.service.CartService;
+import com.example.GiftHub.service.PaymentService;
+import com.example.GiftHub.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -16,6 +22,15 @@ public class CartController {
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
+    private UserService userService;
+
+    private static final Logger logger = LoggerFactory.getLogger(CartService.class);
+
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getCartByUserId(@PathVariable Long userId) {
@@ -27,15 +42,42 @@ public class CartController {
         }
     }
 
-    @PostMapping("/{userId}/{productId}")
-    public ResponseEntity<?> addProductToCart(@PathVariable Long userId, @PathVariable Long productId, @RequestParam int quantity) {
+    @PostMapping("/add")
+    public ResponseEntity<?> addProductToCart(@RequestBody CartDTO cartDTO) {
         try {
-            CartDTO cart = cartService.addProductToCart(userId, productId, quantity);
+            CartDTO cart = cartService.addProductToCart(cartDTO.getUserId(), cartDTO.getProductId(), cartDTO.getQuantity());
             return new ResponseEntity<>(cart, HttpStatus.CREATED);
         } catch (Exception ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping("/{userId}/checkout")
+    public ResponseEntity<?> checkoutCart(@PathVariable Long userId) {
+        try {
+            BigDecimal totalAmount = cartService.calculateTotalCartAmount(userId);
+            if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                return new ResponseEntity<>("Não há itens no carrinho", HttpStatus.BAD_REQUEST);
+            }
+
+            User user = userService.getUserById(userId);
+
+            // Simula o pagamento apenas se houver itens no carrinho
+            PaymentTransaction paymentTransaction = paymentService.simulatePayment(user, totalAmount);
+
+            // Persistir a transação de pagamento
+            paymentTransaction = paymentService.savePaymentTransaction(paymentTransaction);
+
+            // Limpar o carrinho após o pagamento bem-sucedido
+            cartService.clearCart(userId);
+
+            return new ResponseEntity<>(paymentTransaction, HttpStatus.CREATED);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 
     @PutMapping("/{userId}/{productId}")
     public ResponseEntity<?> updateProductQuantityInCart(@PathVariable Long userId, @PathVariable Long productId, @RequestParam int quantity) {
