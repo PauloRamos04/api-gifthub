@@ -1,4 +1,11 @@
 package com.example.GiftHub.domain.user;
 
-public record AuthDTO(String login, String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthDTO(
+        @NotBlank(message = "Login obrigatorio")
+        String login,
+
+        @NotBlank(message = "Senha obrigatoria")
+        String password) {
 }

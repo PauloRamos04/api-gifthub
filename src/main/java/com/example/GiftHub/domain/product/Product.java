@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "produto")
 @Getter
@@ -22,28 +24,24 @@ public class Product {
     private Long productId;
 
     @Column(name = "nome")
-    @NotNull(message = "Nome obrigatorio")
     private String name;
 
     @Column(name = "descricao")
     private String description;
 
     @Column(name = "preco")
-    @NotNull(message = "Preço obrigatorio")
-    private double price;
+    private BigDecimal price;
 
     @Column(name = "estoque")
-    @NotNull(message = "Estoque obrigatorio")
     private int stock;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Categoria obrigatorio")
     @Column(name = "categoria")
     private ProductType productType;
 
     public Product(ProductDTO dto){
         this.name = dto.name();
-        this.description = dto.descritption();
+        this.description = dto.description();
         this.price = dto.price();
         this.stock = dto.stock();
         this.productType = dto.productType();

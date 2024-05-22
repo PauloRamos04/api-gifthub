@@ -1,6 +1,5 @@
 package com.example.GiftHub.domain.user;
 
-
 import com.example.GiftHub.domain.address.Address;
 import com.example.GiftHub.domain.cart.Cart;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Entity(name = "users")
 @Table(name = "users")
@@ -24,7 +24,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements UserDetails{
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,28 +35,22 @@ public class User implements UserDetails{
     private String fullName;
 
     @Column(name = "login")
-    @NotNull(message = "O login é obrigatorio")
     private String login;
 
     @Column(name = "email")
-    @NotNull(message = "email é obrigatorio")
     private String email;
 
     @Column(name = "cpf")
-    @NotNull(message = "cpf é obrigatorio")
     private String cpf;
 
     @Column(name = "dt_nasc")
-    @NotNull(message = "data de nascimento é obrigatorio")
     private String dateOfBirth;
 
     @ManyToOne
     @JoinColumn(name = "endereco_id")
-    @NotNull(message = "Endereço obrigatorio")
     private Address address;
 
     @Column(name = "senha")
-    @NotNull(message = "Senha obrigatoria")
     private String password;
 
     @Column(name = "cargo")
@@ -66,8 +60,13 @@ public class User implements UserDetails{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Cart> carts = new ArrayList<>();
 
+    @Column(name = "token_verificacao")
+    private UUID verificationToken;
 
-    public User(String login, String password, UserRole role){
+    @Column(name = "verificado")
+    private boolean verified = false;
+
+    public User(String login, String password, UserRole role) {
         this.login = login;
         this.password = password;
         this.role = role;
@@ -83,11 +82,11 @@ public class User implements UserDetails{
         this.role = dto.role();
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(this.role == UserRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_CUSTOMER"));
-        else return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        if (this.role == UserRole.ADMIN)
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+        else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
@@ -112,7 +111,7 @@ public class User implements UserDetails{
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.verified;
     }
-}
 
+}
