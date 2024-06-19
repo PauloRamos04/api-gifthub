@@ -26,6 +26,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User implements UserDetails {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
@@ -114,4 +115,7 @@ public class User implements UserDetails {
         return this.verified;
     }
 
+    public String getUserIdAsString() {
+        return String.valueOf(this.userId);
+    }
 }

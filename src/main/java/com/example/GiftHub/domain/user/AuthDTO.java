@@ -8,4 +8,12 @@ public record AuthDTO(
 
         @NotBlank(message = "Senha obrigatoria")
         String password) {
+
+    public Object getLogin() {
+        return this.login;
+    }
+
+    public Object getPassword() {
+        return this.password;
+    }
 }

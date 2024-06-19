@@ -41,11 +41,11 @@ public class AuthController {
     private TokenService tokenService;
 
     @Autowired
-    private EmailService emailService;  // Adicione o serviço de email
+    private EmailService emailService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthDTO data, HttpServletRequest request) {
-        logger.info("Iniciando processo de login para o usuário: {}", data.login());
+        logger.info("Iniciando processo de login para o usuário: {}", data.getLogin());
         HttpSession session = request.getSession(false);
 
         if (session != null && session.getAttribute("token") != null) {
@@ -54,19 +54,32 @@ public class AuthController {
         }
 
         try {
-            var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
+            var usernamePassword = new UsernamePasswordAuthenticationToken(data.getLogin(), data.getPassword());
             var auth = this.authenticationManager.authenticate(usernamePassword);
 
-            var token = tokenService.generateToken((User) auth.getPrincipal());
+            // Gerar token com informações do usuário
+            String token = tokenService.generateToken((User) auth.getPrincipal());
 
-            logger.info("Usuário {} logado com sucesso.", data.login());
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+            // Definir atributos de sessão para controle
+            session = request.getSession(true);
+            session.setAttribute("token", token);
+
+            // Obter userId como String para armazenar na sessão
+            User user = (User) auth.getPrincipal();
+            String userIdAsString = String.valueOf(user.getUserId()); // Converte userId para String
+
+            session.setAttribute("userId", userIdAsString); // Armazena userId como String
+
+            logger.info("Usuário {} logado com sucesso.", data.getLogin());
+            // Retornar todas as informações do usuário no response
+            return ResponseEntity.ok(new LoginResponseDTO(token, userIdAsString, user.getUsername()));
         } catch (Exception e) {
             logger.error("Erro durante o login: {}", e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid UserDTO userDTO) {
@@ -77,11 +90,21 @@ public class AuthController {
         String encryptedPassword = new BCryptPasswordEncoder().encode(userDTO.password());
         User newUser = new User(userDTO);
         newUser.setPassword(encryptedPassword);
-        newUser.setVerificationToken(UUID.randomUUID()); // Gerar token de verificação
+        newUser.setVerificationToken(UUID.randomUUID());
         this.userRepository.save(newUser);
 
-        emailService.enviarEmailVerificacao(newUser); // Enviar email de verificação
+        emailService.enviarEmailVerificacao(newUser);
 
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate(); // Invalida a sessão
+        }
+        return ResponseEntity.ok("Logout realizado com sucesso");
     }
 }
+

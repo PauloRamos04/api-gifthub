@@ -6,6 +6,7 @@ public enum ProductType {
     SPOTIFY,
     AMAZON,
     XBOX,
-    PLAYSTATION
+    PLAYSTATION,
+    GAME
 }
 

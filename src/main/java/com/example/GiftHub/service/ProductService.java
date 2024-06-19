@@ -25,6 +25,16 @@ public class ProductService {
         return products;
     }
 
+    public List<Product> searchProducts(String term) throws Exception {
+        List<Product> products = this.productRepository.findByNameContainingIgnoreCase(term);
+
+        if (products.isEmpty()) {
+            throw new Exception("Nenhum produto encontrado para o termo de pesquisa: " + term);
+        }
+
+        return products;
+    }
+
     public Product getProductById(Long id) throws Exception{
         return this.productRepository.findById(id)
                 .orElseThrow(() -> new Exception("Produto não encontrado"));

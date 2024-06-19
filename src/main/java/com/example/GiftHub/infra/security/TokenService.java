@@ -32,6 +32,7 @@ public class TokenService {
 
     public String generateToken(User user) {
         HttpSession session = request.getSession();
+        // Verifica se o token já existe na sessão
         String existingToken = (String) session.getAttribute("token");
         if (existingToken != null) {
             return existingToken;

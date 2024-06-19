@@ -131,9 +131,12 @@ public class CartService {
     public void clearCart(Long userId) throws Exception {
         logger.info("Chamando o método clearCart para o usuário com ID: {}", userId);
 
-        // Exclui os itens do carrinho com base no ID do usuário
+        // Excluir os itens do carrinho do usuário em lotes
         int deletedItems = cartRepository.deleteByUserId(userId);
+
         logger.info("Número de itens do carrinho excluídos para o usuário com ID {}: {}", userId, deletedItems);
+
+        logger.info("Limpeza do carrinho concluída para o usuário com ID: {}", userId);
     }
 
 

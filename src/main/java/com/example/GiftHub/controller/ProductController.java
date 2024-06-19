@@ -31,6 +31,16 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/search") // Defina o path correto para o endpoint
+    public ResponseEntity<?> searchProducts(@RequestParam String search) {
+        try {
+            List<Product> products = productService.searchProducts(search);
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
         try{
@@ -41,7 +51,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/{id}")
+    @PostMapping
     public ResponseEntity<?> postProduct(@RequestBody ProductDTO product) {
         try{
             Product newProduct = this.productService.createProduct(product);
